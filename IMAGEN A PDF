@@ -52,4 +52,4 @@ for nombre_imagen in imagenes:
 # Cerrar Word al final
 word.Quit()
 
-print("✅ ¡Listo! Todos los archivos Word y PDF conservan el nombre de la imagen original.")
+print("✅ ¡Listo! .")
