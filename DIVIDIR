@@ -1,0 +1,44 @@
+input_pdf = r"C:\Users\RECIBO_2.pdf"
+output_folder = "paginas_divididas"
+
+os.makedirs(output_folder, exist_ok=True)
+
+reader = PdfReader(input_pdf)
+
+for i, page in enumerate(reader.pages, start=1):
+    width = page.mediabox.width
+    height = page.mediabox.height
+
+    # Crear la mitad superior
+    upper_half = page
+    upper_half.mediabox.upper_left = (0, height)
+    upper_half.mediabox.lower_right = (width, height/2)
+
+    # Guardar mitad superior
+    writer = PdfWriter()
+    writer.add_page(upper_half)
+    output_file = os.path.join(output_folder, f"pagina_{i}_1.pdf")
+    with open(output_file, "wb") as f:
+        writer.write(f)
+
+    # Crear la mitad inferior
+    lower_half = page
+    lower_half.mediabox.upper_left = (0, height/2)
+    lower_half.mediabox.lower_right = (width, 0)
+
+    # Guardar mitad inferior
+    writer = PdfWriter()
+    writer.add_page(lower_half)
+    output_file = os.path.join(output_folder, f"pagina_{i}_2.pdf")
+    with open(output_file, "wb") as f:
+        writer.write(f)
+
+print("¡Listo! Cada mitad está guardada como PDF independiente.")
+
+# Abrir carpeta automáticamente
+if platform.system() == "Windows":
+    subprocess.run(f'explorer "{os.path.abspath(output_folder)}"')
+elif platform.system() == "Darwin":
+    subprocess.run(["open", os.path.abspath(output_folder)])
+elif platform.system() == "Linux":
+    subprocess.run(["xdg-open", os.path.abspath(output_folder)])
