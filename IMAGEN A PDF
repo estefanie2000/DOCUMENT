@@ -1,0 +1,55 @@
+Carpeta_imagenes = r"C:\Users\paginas_divididas\imagenes"
+carpeta_salida_word = r"C:\documentos_word"
+carpeta_salida_pdf = r"C:\documentos_pdf"
+
+os.makedirs(carpeta_salida_word, exist_ok=True)
+os.makedirs(carpeta_salida_pdf, exist_ok=True)
+
+# Imágenes válidas
+imagenes = sorted([
+    f for f in os.listdir(carpeta_imagenes)
+    if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))
+])
+
+# Abrir Word una sola vez
+word = comtypes.client.CreateObject('Word.Application')
+word.Visible = False
+
+for nombre_imagen in imagenes:
+    ruta_imagen = os.path.join(carpeta_imagenes, nombre_imagen)
+
+    # Crear documento Word
+    doc = Document()
+
+    # Márgenes a 0.6 cm
+    for section in doc.sections:
+        section.top_margin = Cm(0.6)
+        section.bottom_margin = Cm(0.6)
+        section.left_margin = Cm(0.6)
+        section.right_margin = Cm(0.6)
+
+    # Insertar imagen centrada
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = 1  # Centrado
+    run = paragraph.add_run()
+    run.add_picture(ruta_imagen, width=Cm(20.69), height=Cm(13.39))
+
+    # Usar el mismo nombre de la imagen (sin extensión)
+    base_name = os.path.splitext(nombre_imagen)[0]
+
+    # Guardar Word
+    ruta_word = os.path.join(carpeta_salida_word, f"{base_name}.docx")
+    doc.save(ruta_word)
+
+    # Convertir a PDF con Word
+    ruta_pdf = os.path.join(carpeta_salida_pdf, f"{base_name}.pdf")
+    word_doc = word.Documents.Open(ruta_word)
+    word_doc.SaveAs(ruta_pdf, FileFormat=17)  # 17 = PDF
+    word_doc.Close()
+
+    print(f"{base_name}.docx y .pdf creados.")
+
+# Cerrar Word al final
+word.Quit()
+
+print("✅ ¡Listo! Todos los archivos Word y PDF conservan el nombre de la imagen original.")
